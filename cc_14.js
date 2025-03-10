@@ -243,3 +243,4 @@ document.addEventListener('DOMContentLoaded', function() {
         ticketContainer.appendChild(newTicket);
     });
 });
+
