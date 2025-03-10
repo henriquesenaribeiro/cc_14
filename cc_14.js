@@ -67,40 +67,28 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`Ticket ${ticket.id} has been resolved and removed`);
         });
         
-        // Task 5: Add double-click event to the ticket for editing
-        ticket.addEventListener('dblclick', function(event) {
-            // Don't enter edit mode if clicking on buttons
-            if (event.target.tagName === 'BUTTON') return;
-            
-            // Convert to editable fields
-            convertToEditableFields();
-        });
-        
-        // Task 5: Add click event to the Edit button
+        // Task 5: Add edit functionality
         editButton.addEventListener('click', function(event) {
             // Stop event from bubbling
             event.stopPropagation();
             
-            // Convert to editable fields
-            convertToEditableFields();
-        });
-        
-        // Task 5: Function to convert ticket to editable fields
-        function convertToEditableFields() {
-            // Store original content to restore if needed
-            const originalName = nameHeading.textContent;
-            const originalIssue = issuePara.textContent;
-            const originalPriority = priorityLevel;
+            // Toggle edit mode
+            if (ticket.classList.contains('edit-mode')) {
+                return; // If already in edit mode, do nothing
+            }
+            
+            // Add edit mode class
+            ticket.classList.add('edit-mode');
             
             // Create input for customer name
             const nameInput = document.createElement('input');
             nameInput.type = 'text';
-            nameInput.value = originalName;
+            nameInput.value = nameHeading.textContent;
             
             // Create textarea for issue description
             const issueTextarea = document.createElement('textarea');
             issueTextarea.rows = 3;
-            issueTextarea.value = originalIssue;
+            issueTextarea.value = issuePara.textContent;
             
             // Create select for priority
             const prioritySelect = document.createElement('select');
@@ -120,12 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
             prioritySelect.appendChild(lowOption);
             prioritySelect.appendChild(mediumOption);
             prioritySelect.appendChild(highOption);
-            prioritySelect.value = originalPriority;
             
-            // Create Save button
-            const saveButton = document.createElement('button');
-            saveButton.textContent = 'Save';
-            saveButton.setAttribute('class', 'save-btn');
+            // Set current priority
+            const currentPriority = priorityLabel.querySelector('.priority-text').textContent.toLowerCase();
+            prioritySelect.value = currentPriority;
             
             // Replace content with form inputs
             nameHeading.innerHTML = '';
@@ -137,14 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
             priorityLabel.innerHTML = '<strong>Priority:</strong> ';
             priorityLabel.appendChild(prioritySelect);
             
-            // Hide edit button and show save button
-            editButton.style.display = 'none';
-            actionDiv.insertBefore(saveButton, resolveButton);
+            // Change edit button to save button
+            editButton.textContent = 'Save';
+            editButton.setAttribute('class', 'save-btn');
             
-            // Add click event to the Save button
-            saveButton.addEventListener('click', function(event) {
-                // Stop event from bubbling
-                event.stopPropagation();
+            // Add event listener to save button
+            editButton.onclick = function(e) {
+                e.stopPropagation();
                 
                 // Update ticket with new values
                 const newName = nameInput.value;
@@ -160,13 +145,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 ticket.classList.remove('priority-low', 'priority-medium', 'priority-high');
                 ticket.classList.add(`priority-${newPriority}`);
                 
-                // Show edit button and remove save button
-                editButton.style.display = 'inline-block';
-                actionDiv.removeChild(saveButton);
+                // Reset edit button
+                editButton.textContent = 'Edit';
+                editButton.setAttribute('class', 'edit-btn');
                 
-                console.log(`Ticket ${ticket.id} has been updated`);
-            });
-        }
+                // Remove edit mode class
+                ticket.classList.remove('edit-mode');
+                
+                // Reset onclick handler
+                editButton.onclick = null;
+            };
+        });
         
         // Return the ticket element
         return ticket;
@@ -182,10 +171,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply highlighting to each high priority ticket
         ticketsArray.forEach(ticket => {
-            // Add a bold border to highlight them
-            ticket.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.5)';
-            ticket.style.border = '2px solid red';
-            ticket.style.fontWeight = 'bold';
+            // Add animation to make them more visible
+            ticket.style.animation = 'pulse 1.5s infinite';
+            ticket.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.7)';
+            
+            // Optional: add this to your CSS
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.03); }
+                        100% { transform: scale(1); }
+                    }
+                </style>
+            `);
         });
         
         console.log(`Highlighted ${ticketsArray.length} high priority tickets`);
@@ -243,4 +242,3 @@ document.addEventListener('DOMContentLoaded', function() {
         ticketContainer.appendChild(newTicket);
     });
 });
-
