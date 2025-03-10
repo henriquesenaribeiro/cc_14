@@ -87,3 +87,16 @@ document.getElementById("addTicketBtn").addEventListener("click", function () {
     addTicket("Jane Smith", "Payment not processed.", "High"); // Example high-priority ticket
     highlightHighPriorityTickets(); // Apply highlithing
 });
+
+//Task 4 - Support Ticket Resolution with Event Bubbling
+
+// Event listener for handling ticket clicks
+document.getElementById("ticketContainer").addEventListener("click", function(event) {
+    // Check if the clicked element is the "Resolve" button
+    if (event.target.classList.contains("resolve-btn")) {
+        event.stopPropagation(); // Prevent event bubbling to the container
+        event.target.parentElement.remove(); // Remove the entire ticket
+    } else {
+        console.log("Ticket clicked."); // Log message when clicking anywhere else in a ticket
+    }
+});
