@@ -67,3 +67,23 @@ function addTicket(name, issue, priority) {
 document.getElementById("addTicketBtn").addEventListener("click", function () {
     addTicket("John Doe", "Unable to access account.", "High");
 });
+
+// Task 3 - Highlighting High Priority Tickets
+
+// Function to highlight high-priority tickets
+function highlightHighPriorityTickets() {
+    // Select all elements with the class "high-priority"
+    const highPriorityTickets = document.querySelectorAll(".high-priority");
+
+    // Convert NodeList to an array and apply styles
+    Array.from(highPriorityTickets).forEach(function(ticket) {
+        ticket.parentElement.style.backgroundColor = "lightcoral"; // Change background color
+        ticket.parentElement.style.border = "2px solid red"; // Add a red border for visibility
+    });
+}
+
+// Example: Highlight high-priority tickets when adding a new one
+document.getElementById("addTicketBtn").addEventListener("click", function () {
+    addTicket("Jane Smith", "Payment not processed.", "High"); // Example high-priority ticket
+    highlightHighPriorityTickets(); // Apply highlithing
+});
