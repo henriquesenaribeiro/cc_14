@@ -100,3 +100,54 @@ document.getElementById("ticketContainer").addEventListener("click", function(ev
         console.log("Ticket clicked."); // Log message when clicking anywhere else in a ticket
     }
 });
+
+// Task 5 - Inline Editing for Support Tickets
+
+// Event listener for double-clicking to edit a ticket
+document.getElementById("ticketContainer").addEventListener("dblclick", function(event) {
+    const ticket = event.target.closest(".ticket"); // Find the closest ticket div
+    if (!ticket) return; // Exit if no ticket was clicked
+
+    // Extract current ticket details
+    const nameText = ticket.querySelector("h3").textContent.replace("Customer: ", "");
+    const issueText = ticket.querySelector("p").textContent.replace("Issue: ", "");
+    const priorityText = ticket.querySelector("span").textContent.replace("Priority: ", "");
+
+    // Create input fields with pre-filled existing values
+    const nameInput = document.createElement("input");
+    nameInput.value = nameText;
+
+    const issueInput = document.createElement("input");
+    issueInput.value = issueText;
+
+    // Create a dropdown for selecting priority
+    const priorityInput = document.createElement("select");
+    ["Low", "Medium", "High"].forEach(function(level) {
+        let option = document.createElement("option");
+        option.value = level;
+        option.textContent = level;
+        if (level === priorityText) option.selected = true; // Set the current priority as selected
+        priorityInput.appendChild(option);
+    });
+
+    // Create save button
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Save";
+
+    // Clear ticket content and replace with input fields
+    ticket.innerHTML = "";
+    ticket.appendChild(nameInput);
+    ticket.appendChild(issueInput);
+    ticket.appendChild(priorityInput);
+    ticket.appendChild(saveBtn);
+
+    // Handle saving the new details
+    saveBtn.addEventListener("click", function() {
+        ticket.innerHTML = `
+            <h3>Customer: ${nameInput.value}</h3>
+            <p>Issue: ${issueInput.value}</p>
+            <span class="${priorityInput.value.toLowerCase()}-priority">Priority: ${priorityInput.value}</span>
+            <button class="resolve-btn">Resolve</button>
+        `;
+    });
+});
