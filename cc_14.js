@@ -37,11 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
         editButton.textContent = 'Edit';
         editButton.setAttribute('class', 'edit-btn');
         
-        // Create Save button (initially hidden, shown in edit mode)
-        const saveButton = document.createElement('button');
-        saveButton.textContent = 'Save Changes';
-        saveButton.setAttribute('class', 'save-btn');
-        
         // Create Resolve button
         const resolveButton = document.createElement('button');
         resolveButton.textContent = 'Resolve';
@@ -49,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add buttons to action div
         actionDiv.appendChild(editButton);
-        actionDiv.appendChild(saveButton);
         actionDiv.appendChild(resolveButton);
         
         // Append all elements to the ticket
@@ -73,13 +67,13 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`Ticket ${ticket.id} has been resolved and removed`);
         });
         
-        // Add double-click event to the ticket for editing
+        // Task 5: Add double-click event to the ticket for editing
         ticket.addEventListener('dblclick', function(event) {
             // Don't enter edit mode if clicking on buttons
             if (event.target.tagName === 'BUTTON') return;
             
-            // Enter edit mode
-            enterEditMode();
+            // Convert to editable fields
+            convertToEditableFields();
         });
         
         // Task 5: Add click event to the Edit button
@@ -87,33 +81,29 @@ document.addEventListener('DOMContentLoaded', function() {
             // Stop event from bubbling
             event.stopPropagation();
             
-            // Enter edit mode
-            enterEditMode();
+            // Convert to editable fields
+            convertToEditableFields();
         });
         
-        // Task 5: Function to enter edit mode
-        function enterEditMode() {
-            // If already in edit mode, do nothing
-            if (ticket.classList.contains('edit-mode')) return;
-            
-            // Add edit mode class
-            ticket.classList.add('edit-mode');
+        // Task 5: Function to convert ticket to editable fields
+        function convertToEditableFields() {
+            // Store original content to restore if needed
+            const originalName = nameHeading.textContent;
+            const originalIssue = issuePara.textContent;
+            const originalPriority = priorityLevel;
             
             // Create input for customer name
             const nameInput = document.createElement('input');
             nameInput.type = 'text';
-            nameInput.value = nameHeading.textContent;
-            nameInput.id = `name-input-${ticket.id}`;
+            nameInput.value = originalName;
             
             // Create textarea for issue description
             const issueTextarea = document.createElement('textarea');
             issueTextarea.rows = 3;
-            issueTextarea.value = issuePara.textContent;
-            issueTextarea.id = `issue-input-${ticket.id}`;
+            issueTextarea.value = originalIssue;
             
             // Create select for priority
             const prioritySelect = document.createElement('select');
-            prioritySelect.id = `priority-input-${ticket.id}`;
             
             const lowOption = document.createElement('option');
             lowOption.value = 'low';
@@ -130,10 +120,12 @@ document.addEventListener('DOMContentLoaded', function() {
             prioritySelect.appendChild(lowOption);
             prioritySelect.appendChild(mediumOption);
             prioritySelect.appendChild(highOption);
+            prioritySelect.value = originalPriority;
             
-            // Set current priority
-            const currentPriority = priorityLabel.querySelector('.priority-text').textContent.toLowerCase();
-            prioritySelect.value = currentPriority;
+            // Create Save button
+            const saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            saveButton.setAttribute('class', 'save-btn');
             
             // Replace content with form inputs
             nameHeading.innerHTML = '';
@@ -144,45 +136,36 @@ document.addEventListener('DOMContentLoaded', function() {
             
             priorityLabel.innerHTML = '<strong>Priority:</strong> ';
             priorityLabel.appendChild(prioritySelect);
-        }
-        
-        // Task 5: Add click event to the Save button
-        saveButton.addEventListener('click', function(event) {
-            // Stop event from bubbling
-            event.stopPropagation();
             
-            // Save changes
-            saveChanges();
-        });
-        
-        // Task 5: Function to save changes
-        function saveChanges() {
-            // If not in edit mode, do nothing
-            if (!ticket.classList.contains('edit-mode')) return;
+            // Hide edit button and show save button
+            editButton.style.display = 'none';
+            actionDiv.insertBefore(saveButton, resolveButton);
             
-            // Get values from inputs
-            const nameInput = document.getElementById(`name-input-${ticket.id}`);
-            const issueTextarea = document.getElementById(`issue-input-${ticket.id}`);
-            const prioritySelect = document.getElementById(`priority-input-${ticket.id}`);
-            
-            // Update ticket with new values
-            const newName = nameInput.value;
-            const newIssue = issueTextarea.value;
-            const newPriority = prioritySelect.value;
-            
-            // Update the ticket content
-            nameHeading.textContent = newName;
-            issuePara.textContent = newIssue;
-            priorityLabel.innerHTML = `<strong>Priority:</strong> <span class="priority-text">${newPriority.charAt(0).toUpperCase() + newPriority.slice(1)}</span>`;
-            
-            // Update ticket class for priority styling
-            ticket.classList.remove('priority-low', 'priority-medium', 'priority-high');
-            ticket.classList.add(`priority-${newPriority}`);
-            
-            // Remove edit mode class
-            ticket.classList.remove('edit-mode');
-            
-            console.log(`Ticket ${ticket.id} has been updated`);
+            // Add click event to the Save button
+            saveButton.addEventListener('click', function(event) {
+                // Stop event from bubbling
+                event.stopPropagation();
+                
+                // Update ticket with new values
+                const newName = nameInput.value;
+                const newIssue = issueTextarea.value;
+                const newPriority = prioritySelect.value;
+                
+                // Update the ticket content
+                nameHeading.textContent = newName;
+                issuePara.textContent = newIssue;
+                priorityLabel.innerHTML = `<strong>Priority:</strong> <span class="priority-text">${newPriority.charAt(0).toUpperCase() + newPriority.slice(1)}</span>`;
+                
+                // Update ticket class for priority styling
+                ticket.classList.remove('priority-low', 'priority-medium', 'priority-high');
+                ticket.classList.add(`priority-${newPriority}`);
+                
+                // Show edit button and remove save button
+                editButton.style.display = 'inline-block';
+                actionDiv.removeChild(saveButton);
+                
+                console.log(`Ticket ${ticket.id} has been updated`);
+            });
         }
         
         // Return the ticket element
@@ -199,23 +182,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply highlighting to each high priority ticket
         ticketsArray.forEach(ticket => {
-            // Add animation to make them more visible
-            ticket.style.animation = 'pulse 1.5s infinite';
-            ticket.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.7)';
-            
-            // Optional: add this to your CSS
-            if (!document.getElementById('pulse-animation')) {
-                const style = document.createElement('style');
-                style.id = 'pulse-animation';
-                style.textContent = `
-                    @keyframes pulse {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.03); }
-                        100% { transform: scale(1); }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
+            // Add a bold border to highlight them
+            ticket.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.5)';
+            ticket.style.border = '2px solid red';
+            ticket.style.fontWeight = 'bold';
         });
         
         console.log(`Highlighted ${ticketsArray.length} high priority tickets`);
