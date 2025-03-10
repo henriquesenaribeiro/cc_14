@@ -1,153 +1,91 @@
 //Task 1 - Base Structure Created
 
-// Select the body element
-const body = document.body;
-
-// Create the header and set its content
-const header = document.createElement("header");
-header.innerHTML = "<h1>Customer Support Ticket System</h1>";
-body.appendChild(header);
-
-// Create the main section
-const main = document.createElement("main");
-
-// Create the container for support tickets
-const ticketContainer = document.createElement("div");
-ticketContainer.id = "ticketContainer"; // Assign an ID for dynamic ticket addition
-main.appendChild(ticketContainer);
-
-// Append the main section to the body
-body.appendChild(main);
-
-// Create the footer and set its content
-const footer = document.createElement("footer");
-footer.innerHTML = "<p>&copy; 2025 Support System Inc.</p>";
-body.appendChild(footer);
-
-// Confirmation in the console
-console.log("Task 1 - Base Structure Created: Header, Main, and Footer added.");
-
-//Task 2 - Support Tickets Dynamic Addition
-
-// Function to add a new support ticket dynamically
-function addTicket(name, issue, priority) {
+document.addEventListener("DOMContentLoaded", function () {
     const ticketContainer = document.getElementById("ticketContainer");
 
-    // Create the main ticket container
-    const ticket = document.createElement("div");
-    ticket.classList.add("ticket");
+    // Task 2 - Function to add a support ticket
+    function addSupportTicket(customerName, issueDescription, priorityLevel) {
+        const ticket = document.createElement("div");
+        ticket.classList.add("ticket");
 
-    // Create and add customer name element
-    const nameElement = document.createElement("h3");
-    nameElement.textContent = `Customer: ${name}`;
-    ticket.appendChild(nameElement);
+        const nameHeading = document.createElement("h3");
+        nameHeading.textContent = customerName;
 
-    // Create and add issue description element
-    const issueElement = document.createElement("p");
-    issueElement.textContent = `Issue: ${issue}`;
-    ticket.appendChild(issueElement);
+        const issueParagraph = document.createElement("p");
+        issueParagraph.textContent = issueDescription;
 
-    // Create and add priority label
-    const priorityElement = document.createElement("span");
-    priorityElement.textContent = `Priority: ${priority}`;
-    priorityElement.classList.add(priority.toLowerCase() + "-priority"); // Adds class based on priority
-    ticket.appendChild(priorityElement);
+        const priorityLabel = document.createElement("span");
+        priorityLabel.textContent = `Priority: ${priorityLevel}`;
+        priorityLabel.classList.add(priorityLevel.toLowerCase());
 
-    // Create and add resolve button
-    const resolveBtn = document.createElement("button");
-    resolveBtn.textContent = "Resolve";
-    resolveBtn.classList.add("resolve-btn"); // Add class for selection
-    ticket.appendChild(resolveBtn);
+        const resolveButton = document.createElement("button");
+        resolveButton.textContent = "Resolve";
+        resolveButton.addEventListener("click", function (event) {
+            event.stopPropagation();
+            ticketContainer.removeChild(ticket);
+        });
 
-    // Append the complete ticket to the container
-    ticketContainer.appendChild(ticket);
-}
-
-// Example: Adding a test ticket when a button is clicked
-document.getElementById("addTicketBtn").addEventListener("click", function () {
-    addTicket("John Doe", "Unable to access account.", "High");
-});
-
-// Task 3 - Highlighting High Priority Tickets
-
-// Function to highlight high-priority tickets
-function highlightHighPriorityTickets() {
-    // Select all elements with the class "high-priority"
-    const highPriorityTickets = document.querySelectorAll(".high-priority");
-
-    // Convert NodeList to an array and apply styles
-    Array.from(highPriorityTickets).forEach(function(ticket) {
-        ticket.parentElement.style.backgroundColor = "lightcoral"; // Change background color
-        ticket.parentElement.style.border = "2px solid red"; // Add a red border for visibility
-    });
-}
-
-// Example: Highlight high-priority tickets when adding a new one
-document.getElementById("addTicketBtn").addEventListener("click", function () {
-    addTicket("Jane Smith", "Payment not processed.", "High"); // Example high-priority ticket
-    highlightHighPriorityTickets(); // Apply highlithing
-});
-
-//Task 4 - Support Ticket Resolution with Event Bubbling
-
-// Event listener for handling ticket clicks
-document.getElementById("ticketContainer").addEventListener("click", function(event) {
-    // Check if the clicked element is the "Resolve" button
-    if (event.target.classList.contains("resolve-btn")) {
-        event.stopPropagation(); // Prevent event bubbling to the container
-        event.target.parentElement.remove(); // Remove the entire ticket
-    } else {
-        console.log("Ticket clicked."); // Log message when clicking anywhere else in a ticket
+        ticket.appendChild(nameHeading);
+        ticket.appendChild(issueParagraph);
+        ticket.appendChild(priorityLabel);
+        ticket.appendChild(resolveButton);
+        ticketContainer.appendChild(ticket);
     }
-});
 
-// Task 5 - Inline Editing for Support Tickets
+    // Task 3 - Highlight high priority tickets
+    function highlightHighPriorityTickets() {
+        const tickets = document.querySelectorAll(".high");
+        const ticketArray = Array.from(tickets);
+        ticketArray.forEach(ticket => {
+            ticket.style.backgroundColor = "red";
+            ticket.style.color = "white";
+            ticket.style.border = "2px solid black";
+        });
+    }
 
-// Event listener for double-clicking to edit a ticket
-document.getElementById("ticketContainer").addEventListener("dblclick", function(event) {
-    const ticket = event.target.closest(".ticket"); // Find the closest ticket div
-    if (!ticket) return; // Exit if no ticket was clicked
-
-    // Extract current ticket details
-    const nameText = ticket.querySelector("h3").textContent.replace("Customer: ", "");
-    const issueText = ticket.querySelector("p").textContent.replace("Issue: ", "");
-    const priorityText = ticket.querySelector("span").textContent.replace("Priority: ", "");
-
-    // Create input fields with pre-filled existing values
-    const nameInput = document.createElement("input");
-    nameInput.value = nameText;
-
-    const issueInput = document.createElement("input");
-    issueInput.value = issueText;
-
-    // Create a dropdown for selecting priority
-    const priorityInput = document.createElement("select");
-    ["Low", "Medium", "High"].forEach(function(level) {
-        let option = document.createElement("option");
-        option.value = level;
-        option.textContent = level;
-        if (level === priorityText) option.selected = true; // Set the current priority as selected
-        priorityInput.appendChild(option);
+    // Task 4 - Event bubbling for ticket container
+    ticketContainer.addEventListener("click", function () {
+        console.log("A ticket was clicked!");
     });
 
-    // Create save button
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = "Save";
+    // Task 5 - Inline Editing for Support Tickets
+    function enableInlineEditing(ticket) {
+        ticket.addEventListener("dblclick", function () {
+            const name = ticket.querySelector("h3");
+            const issue = ticket.querySelector("p");
+            const priority = ticket.querySelector("span");
 
-    // Clear ticket content and replace with input fields
-    ticket.innerHTML = "";
-    ticket.appendChild(nameInput);
-    ticket.appendChild(issueInput);
-    ticket.appendChild(priorityInput);
-    ticket.appendChild(saveBtn);
+            const nameInput = document.createElement("input");
+            nameInput.value = name.textContent;
 
-    // Handle saving the new details
-    saveBtn.addEventListener("click", function() {
-        ticket.innerHTML = `
-            <h3>Customer: ${nameInput.value}</h3>
-            <p>Issue: ${issueInput.value}</p>
-            <span class="${priorityInput.value.toLowerCase()}-priority">Priority: ${priorityInput.value}</span>
-            <button class="resolve-btn">Resolve</button>
-        `;
-    });
+            const issueInput = document.createElement("input");
+            issueInput.value = issue.textContent;
+
+            const priorityInput = document.createElement("input");
+            priorityInput.value = priority.textContent.replace("Priority: ", "");
+
+            const saveButton = document.createElement("button");
+            saveButton.textContent = "Save";
+            saveButton.addEventListener("click", function () {
+                name.textContent = nameInput.value;
+                issue.textContent = issueInput.value;
+                priority.textContent = `Priority: ${priorityInput.value}`;
+                
+                ticket.replaceChild(name, nameInput);
+                ticket.replaceChild(issue, issueInput);
+                ticket.replaceChild(priority, priorityInput);
+                ticket.removeChild(saveButton);
+            });
+
+            ticket.replaceChild(nameInput, name);
+            ticket.replaceChild(issueInput, issue);
+            ticket.replaceChild(priorityInput, priority);
+            ticket.appendChild(saveButton);
+        });
+    }
+
+    // Example: Adding tickets for testing
+    addSupportTicket("John Doe", "Cannot access account", "High");
+    addSupportTicket("Jane Smith", "Billing issue", "Medium");
+    highlightHighPriorityTickets();
 });
